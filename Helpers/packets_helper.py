@@ -112,9 +112,9 @@ def get_step_count(_parser: LogParser) -> int:
 
 def get_begin_step_packet_id(_parser: LogParser, step_number: int) -> int:
     """
-    Get a packet id that indicates beginning of a turn
+    Get a packet id that indicates beginning of a step
     :param _parser: LogParser instance
-    :param step_number: number of the turn
+    :param step_number: number of the step
     :return: packet_id value
     """
     packet_tree = get_packet_tree(_parser)
@@ -130,9 +130,9 @@ def get_begin_step_packet_id(_parser: LogParser, step_number: int) -> int:
 
 def get_end_step_packet_id(_parser: LogParser, step_number: int) -> int:
     """
-    Get a packet id that indicates ending of a turn
+    Get a packet id that indicates ending of a step
     :param _parser: LogParser instance
-    :param step_number: number of the turn
+    :param step_number: number of the step
     :return: packet_id value
     """
     packet_tree = get_packet_tree(_parser)
@@ -147,6 +147,12 @@ def get_end_step_packet_id(_parser: LogParser, step_number: int) -> int:
 
 
 def get_cards_by_step_begin(_parser: LogParser, step_number: int) -> list:
+    """
+    Get cards at the beginning of the step
+    :param _parser: LogParser instance
+    :param step_number: number of the step
+    :return: list of cards
+    """
     step_packet_id = get_begin_step_packet_id(_parser, step_number)
     trimmed_packet_tree = get_trimmed_packet_tree(_parser, step_packet_id)
 
@@ -154,6 +160,12 @@ def get_cards_by_step_begin(_parser: LogParser, step_number: int) -> list:
 
 
 def get_cards_by_step_end(_parser: LogParser, step_number: int) -> list:
+    """
+    Get cards at the end of the step
+    :param _parser: LogParser instance
+    :param step_number: number of the step
+    :return: list of cards
+    """
     step_packet_id = get_end_step_packet_id(_parser, step_number)
     trimmed_packet_tree = get_trimmed_packet_tree(_parser, step_packet_id)
 
@@ -161,6 +173,12 @@ def get_cards_by_step_end(_parser: LogParser, step_number: int) -> list:
 
 
 def get_packets_by_packet_id(_parser: LogParser, packet_id: int) -> list[Packet] | None:
+    """
+    Get all nested packets by packet_id
+    :param _parser: LogParser instance
+    :param packet_id: ID of the getting packet
+    :return: list of packets
+    """
     packet = get_packet_by_id(_parser, packet_id)
 
     if hasattr(packet, "packets"):
@@ -170,6 +188,11 @@ def get_packets_by_packet_id(_parser: LogParser, packet_id: int) -> list[Packet]
 
 
 def get_packets_by_packet_item(packet: Packet) -> list[Packet] | None:
+    """
+    Get all nested packets by Packet instance
+    :param packet: Packet instance
+    :return: list of packets
+    """
     if hasattr(packet, "packets"):
         return packet.packets
 
@@ -177,6 +200,12 @@ def get_packets_by_packet_item(packet: Packet) -> list[Packet] | None:
 
 
 def get_tags_by_packet_id(_parser: LogParser, packet_id: int) -> list[GameTag] | None:
+    """
+    Get all tags by packet_id
+    :param _parser: LogParser instance
+    :param packet_id: ID of the getting packet
+    :return: list of tags
+    """
     packet = get_packet_by_id(_parser, packet_id)
 
     if hasattr(packet, "tags"):
@@ -188,6 +217,11 @@ def get_tags_by_packet_id(_parser: LogParser, packet_id: int) -> list[GameTag] |
 
 
 def get_tags_by_packet_item(packet: Packet) -> list[GameTag] | None:
+    """
+    Get all tags by Packet instance
+    :param packet: Packet instance
+    :return: list of tags
+    """
     if hasattr(packet, "tags"):
         return packet.tags
     if hasattr(packet, "tag"):
