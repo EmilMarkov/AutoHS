@@ -66,25 +66,25 @@ def get_trimmed_packet_tree(_parser: LogParser, packet_id: int) -> PacketTree:
     packet_tree = get_packet_tree(_parser)
     trimmed_packet_tree = PacketTree(ts=packet_tree.ts)
 
-    for packet in packet_tree.packets:
-        if hasattr(packet, "packet_id"):
-            if packet.packet_id == packet_id:
-                trimmed_packet_tree.packets.append(copy.copy(packet))
-                return trimmed_packet_tree
-        if hasattr(packet, "packets"):
-            new_packet = copy.copy(packet)
-            new_packet.packets = []
-            for sub_packet in packet.packets:
-                if hasattr(sub_packet, "packet_id"):
-                    if sub_packet.packet_id == packet_id:
-                        new_packet.packets.append(copy.copy(sub_packet))
-                        trimmed_packet_tree.packets.append(new_packet)
-                        return trimmed_packet_tree
-                    else:
-                        new_packet.packets.append(sub_packet)
-            trimmed_packet_tree.packets.append(new_packet)
-        else:
-            trimmed_packet_tree.packets.append(packet)
+    def traverse_packets(packets, trimmed_packets):
+        for packet in packets:
+            if hasattr(packet, "packet_id") and packet.packet_id == packet_id:
+                trimmed_packets.append(copy.copy(packet))
+                return True
+            elif hasattr(packet, "packets"):
+                new_packet = copy.copy(packet)
+                new_packet.packets = []
+                if traverse_packets(packet.packets, new_packet.packets):
+                    trimmed_packets.append(new_packet)
+                    return True
+                else:
+                    trimmed_packets.append(new_packet)
+            else:
+                trimmed_packets.append(packet)
+        return False
+
+    traverse_packets(packet_tree.packets, trimmed_packet_tree.packets)
+    return trimmed_packet_tree
 
 
 def get_step_count(_parser: LogParser) -> int:
@@ -150,16 +150,12 @@ def get_cards_by_step_begin(_parser: LogParser, step_number: int) -> list:
     step_packet_id = get_begin_step_packet_id(_parser, step_number)
     trimmed_packet_tree = get_trimmed_packet_tree(_parser, step_packet_id)
 
-    print(step_packet_id)
-
     return get_cards_by_tree(trimmed_packet_tree)
 
 
 def get_cards_by_step_end(_parser: LogParser, step_number: int) -> list:
     step_packet_id = get_end_step_packet_id(_parser, step_number)
     trimmed_packet_tree = get_trimmed_packet_tree(_parser, step_packet_id)
-
-    print(step_packet_id)
 
     return get_cards_by_tree(trimmed_packet_tree)
 

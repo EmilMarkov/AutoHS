@@ -51,17 +51,17 @@ def main():
     #             if packet.tag == GameTag.STEP and packet.value == Step.MAIN_START:
     #                 print("main_start", packet.value)
 
-    for i in range(get_step_count(parser)):
-        deck_begin = get_cards_by_step_begin(parser, i + 1)
-        deck_end = get_cards_by_step_end(parser, i + 1)
-        print("STEP:", i + 1, '\n')
-        print("\tBEGIN:\n")
-        print('\t', deck_begin)
-        print("\tEND:\n")
-        print('\t', deck_end, '\n')
+    # for i in range(get_step_count(parser)):
+    #     deck_begin = get_cards_by_step_begin(parser, i + 1)
+    #     deck_end = get_cards_by_step_end(parser, i + 1)
+    #     print("STEP:", i + 1, '\n')
+    #     print("\tBEGIN:\n")
+    #     print('\t', deck_begin)
+    #     print("\tEND:\n")
+    #     print('\t', deck_end, '\n')
 
-    # trimmed = get_trimmed_packet_tree(parser, 486)
-    # print(trimmed)
+    trimmed = get_trimmed_packet_tree(parser, 486)
+    print(trimmed)
 
 
 if __name__ == "__main__":
