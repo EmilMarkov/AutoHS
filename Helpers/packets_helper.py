@@ -1,6 +1,6 @@
 import copy
 
-from hearthstone.enums import GameTag, Zone, CardType
+from hearthstone.enums import GameTag, Zone, CardType, Step
 from hslog.export import EntityTreeExporter
 from hslog.packets import PacketTree
 from hslog.parser import LogParser
@@ -8,10 +8,21 @@ from hslog.packets import Packet
 
 
 def get_packet_tree(_parser: LogParser) -> PacketTree:
+    """
+    Get a PacketTree
+    :param _parser: LogParser instance
+    :return: PacketTree instance
+    """
     return _parser.games[0]
 
 
 def get_packet_by_id(_parser: LogParser, packet_id: int) -> Packet | None:
+    """
+    Get a Packet by packet id
+    :param _parser: LogParser instance
+    :param packet_id: ID of the getting packet
+    :return: Packet | None (if not found)
+    """
     def find_packet(packets):
         for packet in packets:
             if hasattr(packet, "packet_id"):
@@ -28,6 +39,11 @@ def get_packet_by_id(_parser: LogParser, packet_id: int) -> Packet | None:
 
 
 def get_cards_by_tree(packet_tree: PacketTree) -> list:
+    """
+    Get list of cards at the end of PacketTree instance
+    :param packet_tree: PacketTree instance
+    :return: list[Card]
+    """
     exporter = EntityTreeExporter(packet_tree)
     export = exporter.export()
     player = export.game.players[0]
@@ -41,6 +57,12 @@ def get_cards_by_tree(packet_tree: PacketTree) -> list:
 
 
 def get_trimmed_packet_tree(_parser: LogParser, packet_id: int) -> PacketTree:
+    """
+    Get trimmed PacketTree to a packet with the specified packet_id
+    :param _parser: LogParser instance
+    :param packet_id: ID of the getting packet
+    :return: PacketTree instance
+    """
     packet_tree = get_packet_tree(_parser)
     trimmed_packet_tree = PacketTree(ts=packet_tree.ts)
 
@@ -65,7 +87,12 @@ def get_trimmed_packet_tree(_parser: LogParser, packet_id: int) -> PacketTree:
             trimmed_packet_tree.packets.append(packet)
 
 
-def get_step_packet_id(_parser: LogParser, turn_number: int) -> int:
+def get_step_count(_parser: LogParser) -> int:
+    """
+    Get number of steps at the game
+    :param _parser: LogParser instance
+    :return: number of steps
+    """
     packet_tree = get_packet_tree(_parser)
     count = 0
 
@@ -73,15 +100,66 @@ def get_step_packet_id(_parser: LogParser, turn_number: int) -> int:
         if hasattr(packet, "packets"):
             for sub_packet in packet.packets:
                 if hasattr(sub_packet, "tag"):
-                    if sub_packet.tag == GameTag.STEP:
+                    if sub_packet.tag == GameTag.STEP and sub_packet.value == Step.MAIN_START:
                         count += 1
-                        if count == turn_number:
-                            return sub_packet.packet_id
+        else:
+            if hasattr(packet, "tag"):
+                if packet.tag == GameTag.STEP and packet.value == Step.MAIN_START:
+                    count += 1
+
+    return count
 
 
-def get_cards_by_turn(_parser: LogParser, turn_number: int) -> list:
-    step_packet_id = get_step_packet_id(_parser, turn_number)
+def get_begin_step_packet_id(_parser: LogParser, step_number: int) -> int:
+    """
+    Get a packet id that indicates beginning of a turn
+    :param _parser: LogParser instance
+    :param step_number: number of the turn
+    :return: packet_id value
+    """
+    packet_tree = get_packet_tree(_parser)
+    count = 0
+
+    for packet in packet_tree.packets:
+        if hasattr(packet, "tag") and hasattr(packet, "value"):
+            if packet.tag == GameTag.STEP and packet.value == Step.MAIN_START:
+                count += 1
+                if count == step_number:
+                    return packet.packet_id
+
+
+def get_end_step_packet_id(_parser: LogParser, step_number: int) -> int:
+    """
+    Get a packet id that indicates ending of a turn
+    :param _parser: LogParser instance
+    :param step_number: number of the turn
+    :return: packet_id value
+    """
+    packet_tree = get_packet_tree(_parser)
+    count = 0
+
+    for packet in packet_tree.packets:
+        if hasattr(packet, "tag") and hasattr(packet, "value"):
+            if packet.tag == GameTag.STEP and packet.value == Step.MAIN_END:
+                count += 1
+                if count == step_number:
+                    return packet.packet_id
+
+
+def get_cards_by_step_begin(_parser: LogParser, step_number: int) -> list:
+    step_packet_id = get_begin_step_packet_id(_parser, step_number)
     trimmed_packet_tree = get_trimmed_packet_tree(_parser, step_packet_id)
+
+    print(step_packet_id)
+
+    return get_cards_by_tree(trimmed_packet_tree)
+
+
+def get_cards_by_step_end(_parser: LogParser, step_number: int) -> list:
+    step_packet_id = get_end_step_packet_id(_parser, step_number)
+    trimmed_packet_tree = get_trimmed_packet_tree(_parser, step_packet_id)
+
+    print(step_packet_id)
 
     return get_cards_by_tree(trimmed_packet_tree)
 

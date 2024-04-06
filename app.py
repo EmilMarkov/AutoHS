@@ -1,7 +1,8 @@
 import concurrent.futures
+
+from hearthstone.enums import Step
 from hslog.packets import Block
 from Helpers.packets_helper import *
-
 
 parser = LogParser()
 
@@ -35,9 +36,32 @@ def main():
     #
     # print(step_blocks)
 
-    cards = get_cards_by_turn(parser, 16)
+    cards = get_cards_by_step_end(parser, 3)
 
-    print(cards)
+    packet_tree = get_packet_tree(parser)
+
+    # for packet in packet_tree.packets:
+    #     if hasattr(packet, "packets"):
+    #         for sub_packet in packet.packets:
+    #             if hasattr(sub_packet, "tag"):
+    #                 if sub_packet.tag == GameTag.STEP and sub_packet.value == Step.MAIN_START:
+    #                     print("main_start", sub_packet.tag)
+    #     else:
+    #         if hasattr(packet, "tag"):
+    #             if packet.tag == GameTag.STEP and packet.value == Step.MAIN_START:
+    #                 print("main_start", packet.value)
+
+    for i in range(get_step_count(parser)):
+        deck_begin = get_cards_by_step_begin(parser, i + 1)
+        deck_end = get_cards_by_step_end(parser, i + 1)
+        print("STEP:", i + 1, '\n')
+        print("\tBEGIN:\n")
+        print('\t', deck_begin)
+        print("\tEND:\n")
+        print('\t', deck_end, '\n')
+
+    # trimmed = get_trimmed_packet_tree(parser, 486)
+    # print(trimmed)
 
 
 if __name__ == "__main__":
