@@ -47,12 +47,11 @@ def get_trimmed_packet_tree(_parser: LogParser, packet_id: int) -> PacketTree:
     for packet in packet_tree.packets:
         if hasattr(packet, "packet_id"):
             if packet.packet_id == packet_id:
-                # Создаем новый пакет и добавляем его в обрезанное дерево
                 trimmed_packet_tree.packets.append(copy.copy(packet))
                 return trimmed_packet_tree
         if hasattr(packet, "packets"):
-            new_packet = copy.copy(packet)  # Создаем новый пакет
-            new_packet.packets = []  # Очищаем атрибут packets для добавления подпакетов
+            new_packet = copy.copy(packet)
+            new_packet.packets = []
             for sub_packet in packet.packets:
                 if hasattr(sub_packet, "packet_id"):
                     if sub_packet.packet_id == packet_id:
