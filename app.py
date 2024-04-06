@@ -24,16 +24,20 @@ def main():
         parser.read(f)
     packet_tree = parser.games[0]
 
-    step_blocks = []
+    # step_blocks = []
+    #
+    # with concurrent.futures.ThreadPoolExecutor() as executor:
+    #     results = [executor.submit(process_packet, packet) for packet in packet_tree.packets]
+    #     for future in concurrent.futures.as_completed(results):
+    #         step_block = future.result()
+    #         if step_block is not None:
+    #             step_blocks.append(step_block)
+    #
+    # print(step_blocks)
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        results = [executor.submit(process_packet, packet) for packet in packet_tree.packets]
-        for future in concurrent.futures.as_completed(results):
-            step_block = future.result()
-            if step_block is not None:
-                step_blocks.append(step_block)
+    cards = get_cards_by_turn(parser, 16)
 
-    print(step_blocks)
+    print(cards)
 
 
 if __name__ == "__main__":
