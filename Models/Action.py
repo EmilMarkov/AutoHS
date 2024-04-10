@@ -25,9 +25,9 @@ class Action:
         to_dict(): Converts the Action object to a dictionary.
     """
 
-    def __init__(self, packets: list[Packet]):
+    def __init__(self, packets: list[Packet], action_type: ActionType):
         self.packets = []
-        self.action_type = None
+        self.action_type = action_type
         self.details = {}
 
     def get_action_type(self):
