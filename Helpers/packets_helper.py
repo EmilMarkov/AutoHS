@@ -228,3 +228,31 @@ def get_tags_by_packet_item(packet: Packet) -> list[GameTag] | None:
         return [packet.tag]
 
     return None
+
+
+def get_packets_by_step(_parser: LogParser, step_number: int) -> list[Packet]:
+    """
+    Get all packets by step number
+    :param _parser: LogParser instance
+    :param step_number: nunmber of the step
+    :return: list of packets
+    """
+
+    step_packets = []
+    packet_tree = get_packet_tree(_parser)
+    step_begin = get_begin_step_packet_id(_parser, step_number)
+    step_end = get_end_step_packet_id(_parser, step_number)
+    is_step = False
+
+    for packet in packet_tree.packets:
+        if hasattr(packet, "packet_id"):
+            if packet.packet_id == step_begin:
+                is_step = True
+                continue
+            if packet.packet_id == step_end:
+                is_step = False
+                continue
+            if is_step:
+                step_packets.append(packet)
+
+    return step_packets
