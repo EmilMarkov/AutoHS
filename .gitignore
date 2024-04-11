@@ -104,5 +104,7 @@ docs/_build/
 # PyBuilder
 target/
 
+# System and environment
 .env
 .DS_Store
+*.xml
