@@ -108,3 +108,6 @@ target/
 .env
 .DS_Store
 *.xml
+
+# trash files
+Trash.py
